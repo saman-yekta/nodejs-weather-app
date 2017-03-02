@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+
+    <!--<link rel="stylesheet" href="../public/stylesheets/bootstrap.min.css">-->
+    <!--<link rel="stylesheet" href="../public/stylesheets/bootstrap-theme.min.css">-->
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min">-->
+
+    <style>
+
+        #collapse1{
+            height: 500px;
+            overflow-y: scroll;
+        }
+
+
+
+    </style>
+
+</head>
+<body style="overflow-y: hidden">
+
+    <div id="map" style="width:650px; height: 600px; float: left; margin: 20px auto auto 20px; position: fixed;">
+
+    </div>
+
+    <div style=" width: 500px; float: right; margin: 10px;" class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
+                            Collapsible Group 1</a>
+                    </h4>
+                </div>
+                <div id="collapse1" class="panel-collapse collapse in">
+                    <div class="panel-body" style="padding-right: 0px;">
+
+                        <div class="Days_right" style="width: 18%; float: right">
+                        <% for (i = 0; i < simple_forecast.length; i++){%>
+                        <div style="text-align: center; height: 100%; margin: 70px auto 180px auto;">
+                            <span style="font-family: Nazli; font-size: x-large;"><%= simple_forecast[i].date.weekday %></span>
+                            <span style="display: block; font-family: Nazli">
+                                <%= simple_forecast[i].date.year %> / <%= simple_forecast[i].date.month %> / <%= simple_forecast[i].date.day %>
+                            </span>
+                            <span style="color: #23527c; font-size:large ;"><%= simple_forecast[i].low.celsius %> | </span>
+                            <span style="color: #ac2925; font-size: large;"> <%= simple_forecast[i].high.celsius %> </span>
+                        </div>
+                        <%}%>
+                        </div>
+
+                        <div style="width: 82%; float: right">
+                        <% for (i = 0; i < txt_forecast.length; i++){%>
+
+                        <% if (i % 2 ==0 || i == 0 ){%>
+                        <div style=" padding: 5px; border-radius: 10px;
+                                border: none; margin: auto auto 10px;">
+                            <span style="float: right;"><img src=<%= txt_forecast[i].icon_url %>></span>
+                            <p style="text-align: right; font-family: Nazli; font-size: 20px; margin-right: 58px; "><%= txt_forecast[i].title %></p>
+                            <p style="text-align: right; margin-right: 50px; font-family: Nazli; font-size: 19px"><%= txt_forecast[i].fcttext_metric %></p>
+                        </div>
+                        <%}else {%>
+                        <div style="padding: 5px; background-color: rgba(181,182,238,0.35); border-radius: 10px;
+                                border: none; margin: auto auto 40px;">
+                            <span style="float: right"><img src=<%= txt_forecast[i].icon_url %>></span>
+                            <p style="text-align: right; font-family: Nazli; font-size: 20px; margin-right: 58px; "><%= txt_forecast[i].title %></p>
+                            <p style="text-align: right; margin-right: 50px; font-family: Nazli; font-size: 19px;"><%= txt_forecast[i].fcttext_metric %></p>
+                        </div>
+                        <%}%>
+                        <%}%>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
+                            Collapsible Group 2</a>
+                    </h4>
+                </div>
+                <div id="collapse2" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <img src="http://api.hostip.info/flag.php?ip=153.50.106.161" alt="IP Address Lookup">
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
+                            Collapsible Group 3</a>
+                    </h4>
+                </div>
+                <div id="collapse3" class="panel-collapse collapse">
+                    <div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                        minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+                        commodo consequat.</div>
+                </div>
+            </div>
+        </div>
+
+
+    <script>
+
+
+        function initMap() {
+            var uluru = {lat: 35.715298, lng: 51.404343};
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 5,
+                center: uluru
+            });
+
+            //گرفتن lng & lat با کلیک برروی نقشه
+            google.maps.event.addListener(map, 'click', function (e) {
+                var latLng = {lat: e.latLng.lat(), lng: e.latLng.lng()};
+                GetInfoLatLng(latLng, map);
+            });
+
+        }
+
+        //گرفتن اطلاعات مکانی کاربر با استفاده از lng & lat
+        function GetInfoLatLng(obj_latLng , map) {
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({'location': obj_latLng } , function (result, status) {
+                if (status == google.maps.GeocoderStatus.OK){
+                    if (result[0]){
+                        map.setZoom(13);
+                        var marker = DrawMarker(obj_latLng, map);
+                        DrawInfoWindow(marker, result[0] , map)
+                    }
+                }else {
+                    console.log('status is :'+status);
+                }
+            })
+        }
+        //رسم و نمایش marker
+        function DrawMarker (obj_latLng , map ) {
+            var marker = new google.maps.Marker({
+                position: obj_latLng,
+                map: map
+            });
+            map.setCenter(obj_latLng);
+            return marker
+        }
+
+        //نمایش اطلاعات در infowindow
+        function DrawInfoWindow(marker, message, map) {
+            console.log(message);
+            var infowindow = new google.maps.InfoWindow({
+                content: '<p>Address: '+message.formatted_address+'</p><br>'
+            });
+            infowindow.open(map , marker);
+        }
+
+
+        $(document).ready(
+
+        );
+
+
+    </script>
+
+
+    <!--<script src="~/public/javascripts/jquery v3.1.1.min.js"></script>-->
+    <!--<script src="~/public/javascripts/bootstrap.min.js"></script>-->
+    <script src="//code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_ohnFmgK51bJMW_JUnnr3GoZO7r2xrp8&callback=initMap">
+    </script>
+
+
+</body>
+</html>
